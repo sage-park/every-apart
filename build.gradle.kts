@@ -7,21 +7,25 @@ plugins {
 	kotlin("plugin.spring") version "1.8.22"
 }
 
-group = "com.sage"
-version = "0.0.1-SNAPSHOT"
+allprojects {
+	group = "com.sage.everyapart"
+	version = "0.0.1-SNAPSHOT"
 
-java {
-	sourceCompatibility = JavaVersion.VERSION_17
-}
-
-configurations {
-	compileOnly {
-		extendsFrom(configurations.annotationProcessor.get())
+	repositories {
+		mavenCentral()
 	}
-}
 
-repositories {
-	mavenCentral()
+	tasks.withType<KotlinCompile> {
+		kotlinOptions {
+			freeCompilerArgs = listOf("-Xjsr305=strict")
+			jvmTarget = "17"
+		}
+	}
+
+	tasks.withType<Test> {
+		useJUnitPlatform()
+	}
+
 }
 
 dependencies {
@@ -34,13 +38,40 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
-tasks.withType<KotlinCompile> {
-	kotlinOptions {
-		freeCompilerArgs += "-Xjsr305=strict"
-		jvmTarget = "17"
-	}
+java {
+	sourceCompatibility = JavaVersion.VERSION_17
 }
 
-tasks.withType<Test> {
-	useJUnitPlatform()
+subprojects {
+
+	apply {
+		plugin("org.springframework.boot")
+		plugin("io.spring.dependency-management")
+		plugin("org.jetbrains.kotlin.jvm")
+		plugin("org.jetbrains.kotlin.plugin.spring")
+	}
+
+	dependencies {
+		implementation("org.springframework.boot:spring-boot-starter")
+		implementation("org.jetbrains.kotlin:kotlin-reflect")
+		compileOnly("org.projectlombok:lombok")
+		developmentOnly("org.springframework.boot:spring-boot-devtools")
+		annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+		annotationProcessor("org.projectlombok:lombok")
+		testImplementation("org.springframework.boot:spring-boot-starter-test")
+	}
+
+	tasks.getByName<Test>("test") {
+		useJUnitPlatform()
+	}
+
+	repositories {
+		mavenCentral()
+	}
+
+	configurations {
+		compileOnly {
+			extendsFrom(configurations.annotationProcessor.get())
+		}
+	}
 }
