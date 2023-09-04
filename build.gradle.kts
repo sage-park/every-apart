@@ -28,16 +28,6 @@ allprojects {
 
 }
 
-dependencies {
-	implementation("org.springframework.boot:spring-boot-starter")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	compileOnly("org.projectlombok:lombok")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-	annotationProcessor("org.projectlombok:lombok")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-}
-
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
 }
@@ -54,11 +44,17 @@ subprojects {
 	dependencies {
 		implementation("org.springframework.boot:spring-boot-starter")
 		implementation("org.jetbrains.kotlin:kotlin-reflect")
-		compileOnly("org.projectlombok:lombok")
 		developmentOnly("org.springframework.boot:spring-boot-devtools")
 		annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-		annotationProcessor("org.projectlombok:lombok")
+
+		//jdk8
+		implementation(kotlin("stdlib-jdk8"))
+
+		//test
 		testImplementation("org.springframework.boot:spring-boot-starter-test")
+		testImplementation(kotlin("test"))
+		testImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0")
+
 	}
 
 	tasks.getByName<Test>("test") {
