@@ -5,7 +5,14 @@ plugins {
 
     // QueryDSL 플러그인 추가
     kotlin("kapt")
+
+    //docker plugin
+    id("com.google.cloud.tools.jib") version "3.1.4"
 }
+
+group = "com.sage.everyapart"
+version = "0.0.1-SNAPSHOT"
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -29,4 +36,29 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
 }
+
+
+jib {
+
+    from {
+        image = "openjdk:17-jdk-slim"
+        platforms {
+            platform {
+                architecture = "arm64"
+                os = "linux"
+            }
+        }
+    }
+
+    to {
+        image = "${rootProject.name}-${project.name}"
+        tags = setOf("$version")
+    }
+
+    container{
+        jvmFlags = listOf("-Xms512m", "-Xmx512m")
+    }
+}
+
+
 
