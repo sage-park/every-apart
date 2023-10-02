@@ -19,6 +19,5 @@ class JwtToken(
 
 }
 
-class MembershipId(val membershipId: String)
 class MembershipJwtToken(val jwtToken: String)
 class MembershipRefreshToken(val refreshToken: String)

@@ -6,15 +6,12 @@ import com.sage.everyapart.membershipservice.domain.JwtToken
 import com.sage.everyapart.membershipservice.domain.MembershipId
 import com.sage.everyapart.membershipservice.domain.MembershipJwtToken
 import com.sage.everyapart.membershipservice.domain.MembershipRefreshToken
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
-import org.mockito.BDDMockito
 import org.mockito.BDDMockito.*
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.refEq
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -36,7 +33,7 @@ class AuthMembershipControllerTest{
 
     @Nested
     @DisplayName("POST /membership/login")
-    inner class PostMembershipLogsin {
+    inner class PostMembershipLogin {
 
         @DisplayName("만약 request 에 id, password 가 주어지고")
         @Nested

@@ -1,6 +1,11 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 plugins {
     kotlin("plugin.jpa") version "1.8.22"
+
+    // QueryDSL 플러그인 추가
+    kotlin("kapt")
 
     //docker plugin
     id("com.google.cloud.tools.jib") version "3.1.4"
@@ -8,7 +13,7 @@ plugins {
 }
 
 group = "com.sage.everyapart"
-version = "0.0.1"
+version = "0.0.1-SNAPSHOT"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -44,8 +49,18 @@ dependencies {
     //password encoder
     implementation("org.springframework.security:spring-security-crypto:5.7.1")
 
+    // QueryDSL 의존성 추가
+    implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+
+
 }
 
+val currentDateTime = LocalDateTime.now()
+val formattedDateTime = currentDateTime.format(DateTimeFormatter.ISO_DATE_TIME)
 
 jib {
 
@@ -66,8 +81,6 @@ jib {
 
     container{
         jvmFlags = listOf("-Xms512m", "-Xmx512m")
+        creationTime = "USE_CURRENT_TIMESTAMP"
     }
 }
-
-
-

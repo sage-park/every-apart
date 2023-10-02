@@ -8,31 +8,27 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "membership")
 class MembershipJpaEntity(
-    membershipId: Long,
-    name:String,
-    address:String,
-    email:String,
+    membershipId: String,
+    name:String? = null,
+    address:String? = null,
+    email:String? = null,
     isValid:Boolean,
-    isCorp:Boolean,
-    refreshToken:String?,
+    refreshToken:String? = null,
     password: String
 ) {
 
     @Id
-    @GeneratedValue
-    var membershipId: Long = membershipId
+    var membershipId: String = membershipId
 
     var password: String = password
 
-    var name: String = name
+    var name: String? = name
 
-    var address:String = address
+    var address:String? = address
 
-    var email:String = email
+    var email:String? = email
 
     var isValid:Boolean = isValid
-
-    var isCorp:Boolean = isCorp
 
     var refreshToken:String? = refreshToken
 

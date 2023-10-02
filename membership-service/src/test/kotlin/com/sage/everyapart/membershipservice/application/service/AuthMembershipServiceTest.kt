@@ -2,30 +2,31 @@ package com.sage.everyapart.membershipservice.application.service
 
 import com.sage.everyapart.membershipservice.application.port.`in`.AuthMembershipUsecase
 import com.sage.everyapart.membershipservice.application.port.`in`.RefreshTokenCommand
-import com.sage.everyapart.membershipservice.application.port.out.AuthPort
-import com.sage.everyapart.membershipservice.application.port.out.TokenPort
 import com.sage.everyapart.membershipservice.application.port.out.FindMembershipPort
 import com.sage.everyapart.membershipservice.application.port.out.SaveMembershipPort
+import com.sage.everyapart.membershipservice.application.port.out.TokenPort
 import com.sage.everyapart.membershipservice.domain.Membership
 import com.sage.everyapart.membershipservice.domain.MembershipId
 import com.sage.everyapart.membershipservice.exception.ErrorCode
 import com.sage.everyapart.membershipservice.exception.MembershipException
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.catchException
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.assertThrows
-import org.mockito.BDDMockito.*
+import org.mockito.BDDMockito.given
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.springframework.security.crypto.password.PasswordEncoder
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class AuthMembershipServiceTest {
 
-    val authPort = mock<AuthPort>()
     val saveMembershipPort = mock<SaveMembershipPort>()
     val findMembershipPort = mock<FindMembershipPort>()
+    val passwordEncoder = mock<PasswordEncoder>()
     val tokenPort = mock<TokenPort>()
 
     lateinit var authMembershipService: AuthMembershipUsecase
@@ -36,7 +37,7 @@ class AuthMembershipServiceTest {
             tokenPort = tokenPort,
             findMembershipPort = findMembershipPort,
             saveMembershipPort = saveMembershipPort,
-            authPort = authPort
+            passwordEncoder = passwordEncoder
         )
     }
 
@@ -70,9 +71,11 @@ class AuthMembershipServiceTest {
             @BeforeTest
             fun setup() {
 
-                val membership = mock<Membership>(){
-                    on { isValid } doReturn true
-                }
+                val membership = Membership(
+                    membershipId = MembershipId("1"),
+                    password = "encodedPassword",
+                    isValid = true
+                )
                 given(findMembershipPort.findMembership(any()))
                     .willReturn(membership)
             }
@@ -81,18 +84,20 @@ class AuthMembershipServiceTest {
             @Test
             fun ifInvalidPassword() {
 
-                given(authPort.authenticate(
-                    userId = "user01",
-                    password = "password01"
-                )).willReturn(false)
+                //given
+                given(passwordEncoder.matches(any(), any()))
+                    .willReturn(false)
 
-                val exception = assertThrows<MembershipException> {
+                //when
+                val exception = catchException {
                     authMembershipService.loginMembership(
                         LoginMembershipCommand("1", "password")
                     )
                 }
 
-                assertThat(exception.errorCode).isEqualTo(ErrorCode.INVALID_PASSWORD)
+                //then
+                assertThat(exception).isInstanceOf(MembershipException::class.java)
+                assertThat((exception as MembershipException).errorCode).isEqualTo(ErrorCode.INVALID_PASSWORD)
 
             }
 
@@ -100,7 +105,7 @@ class AuthMembershipServiceTest {
             @Test
             fun ifCorrectPassword() {
 
-                given(authPort.authenticate(any(), any()))
+                given(passwordEncoder.matches(any(), any()))
                     .willReturn(true)
 
                 given(tokenPort.generateJwtToken(any()))

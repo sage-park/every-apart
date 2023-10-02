@@ -3,13 +3,13 @@ package com.sage.everyapart.membershipservice.application.service
 import com.sage.everyapart.membershipservice.adaptor.`in`.web.ValidateTokenCommand
 import com.sage.everyapart.membershipservice.application.port.`in`.AuthMembershipUsecase
 import com.sage.everyapart.membershipservice.application.port.`in`.RefreshTokenCommand
-import com.sage.everyapart.membershipservice.application.port.out.AuthPort
 import com.sage.everyapart.membershipservice.application.port.out.TokenPort
 import com.sage.everyapart.membershipservice.application.port.out.FindMembershipPort
 import com.sage.everyapart.membershipservice.application.port.out.SaveMembershipPort
 import com.sage.everyapart.membershipservice.domain.*
 import com.sage.everyapart.membershipservice.exception.ErrorCode
 import com.sage.everyapart.membershipservice.exception.MembershipException
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,8 +17,7 @@ class AuthMembershipService(
     val tokenPort: TokenPort,
     val findMembershipPort: FindMembershipPort,
     val saveMembershipPort: SaveMembershipPort,
-    val authPort : AuthPort
-
+    val passwordEncoder: PasswordEncoder
 ):AuthMembershipUsecase {
 
     override fun loginMembership(command: LoginMembershipCommand): JwtToken {
@@ -29,11 +28,13 @@ class AuthMembershipService(
 
         if (!membership.isValid) {
             throw MembershipException(
-                message = "invalid membersihp",
+                message = "invalid membership",
                 errorCode = ErrorCode.INVALID_MEMBERSHIP)
         }
 
-        if (!authPort.authenticate(membershipId, command.password)) {
+
+
+        if (!membership.authenticate(passwordEncoder, command.password)) {
             throw MembershipException(
                 message = "invalid password",
                 errorCode = ErrorCode.INVALID_PASSWORD
