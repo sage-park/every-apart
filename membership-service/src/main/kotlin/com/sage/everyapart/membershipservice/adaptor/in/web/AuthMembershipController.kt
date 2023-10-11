@@ -4,9 +4,7 @@ import com.sage.everyapart.membershipservice.application.port.`in`.AuthMembershi
 import com.sage.everyapart.membershipservice.application.port.`in`.RefreshTokenCommand
 import com.sage.everyapart.membershipservice.application.service.LoginMembershipCommand
 import com.sage.everyapart.membershipservice.domain.JwtToken
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class AuthMembershipController (
@@ -39,6 +37,20 @@ class AuthMembershipController (
         )
 
         return authMembershipUsecase.validateJwtToken(command)
+    }
+
+    @GetMapping("/membership/{jwtToken}")
+    fun getMembershipByJwtToken(@PathVariable jwtToken:String):MembershipData {
+
+        val membership = authMembershipUsecase.getMembershipByJwtToken(ValidateTokenCommand(jwtToken = jwtToken))
+        return MembershipData(
+            membershipId = membership.membershipId.membershipId,
+            name = membership.name,
+            address = membership.address,
+            email = membership.email,
+            isValid = membership.isValid
+        )
+
     }
 
 
