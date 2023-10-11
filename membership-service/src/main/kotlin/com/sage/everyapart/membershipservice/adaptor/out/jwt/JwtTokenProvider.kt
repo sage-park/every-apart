@@ -25,7 +25,7 @@ class JwtTokenProvider(): TokenPort{
             .setSubject(membershipId.membershipId)
             .setIssuedAt(now)
             .setExpiration(expiryDate)
-            .signWith(SignatureAlgorithm.HS256, jwtSecret)
+            .signWith(SignatureAlgorithm.HS512, jwtSecret)
             .compact()
 
     }
@@ -39,7 +39,7 @@ class JwtTokenProvider(): TokenPort{
             .setSubject(membershipId.membershipId)
             .setIssuedAt(now)
             .setExpiration(expiryDate)
-            .signWith(SignatureAlgorithm.HS256, jwtSecret)
+            .signWith(SignatureAlgorithm.HS512, jwtSecret)
             .compact()
 
     }
@@ -50,14 +50,17 @@ class JwtTokenProvider(): TokenPort{
             Jwts.parserBuilder()
                 .setSigningKey(jwtSecret)
                 .build()
-                .parseClaimsJwt(jwtToken)
+                .parseClaimsJws(jwtToken)
             return true;
         } catch (ex: MalformedJwtException) {
             // Invalid JWT token: 유효하지 않은 JWT 토큰일 때 발생하는 예외
+            ex.printStackTrace()
         } catch (ex: UnsupportedJwtException) {
             // Expired JWT token: 토큰의 유효기간이 만료된 경우 발생하는 예외
+            ex.printStackTrace()
         } catch (ex: IllegalArgumentException) {
             // JWT claims string is empty: JWT 토큰이 비어있을 때 발생하는 예외
+            ex.printStackTrace()
         }
 
         return false
@@ -67,7 +70,7 @@ class JwtTokenProvider(): TokenPort{
         val claims = Jwts.parserBuilder()
             .setSigningKey(jwtSecret)
             .build()
-            .parseClaimsJwt(jwtToken)
+            .parseClaimsJws(jwtToken)
             .body
 
         return MembershipId(claims.subject)
