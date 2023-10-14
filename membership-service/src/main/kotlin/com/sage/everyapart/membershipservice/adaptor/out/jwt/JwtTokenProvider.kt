@@ -6,16 +6,22 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.UnsupportedJwtException
+import jakarta.validation.Valid
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.lang.IllegalArgumentException
 import java.util.Date
 
 @Component
-class JwtTokenProvider(): TokenPort{
+class JwtTokenProvider(
+    @Value("\${everyapart.token.secret}")
+    val jwtSecret:String,
+    @Value("\${everyapart.token.jwt.expiration}")
+    val jwtTokenExpirationInMs:Long,
+    @Value("\${everyapart.token.refresh.expiration}")
+    val refreshTokenExpirationInMs:Long
+): TokenPort{
 
-    val jwtSecret:String = "NYd4nEtyLtcU7cpS/1HTFVmQJd7MmrP+HafWoXZjWNOL7qKccOOUfQNEx5yvG6dfdpuBeyMs9eEbRmdBrPQCNg=="
-    val jwtTokenExpirationInMs:Long = 1000 * 20; //20초
-    val refreshTokenExpirationInMs:Long = 1000 * 60; //60초
     override fun generateJwtToken(membershipId: MembershipId): String {
 
         val now = Date()
