@@ -6,7 +6,9 @@ services:
     image: every-apart-apartment-service:0.0.1
     ports:
       - "8080:8080"
+      - "5006:5006"
     environment:
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,address=*:5006,server=y,suspend=n"
       EVERYAPART_GOOPENAPI_ACCESSKEY: ${EVERYAPART_GOOPENAPI_ACCESSKEY}
       SPRING_DATASOURCE_URL : "jdbc:postgresql://apartment-db:5432/everyapart"
       SPRING_DATASOURCE_USERNAME : "postgres"
@@ -15,13 +17,14 @@ services:
     depends_on:
       - apartment-db
 
-
   region-service:
     container_name: region-service
     image: every-apart-region-service:0.0.1-SNAPSHOT
     ports:
       - "8081:8080"
+      - "5001:5001"
     environment:
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,address=*:5001,server=y,suspend=n"
       SPRING_DATASOURCE_URL: "jdbc:postgresql://region-db:5432/everyapart"
       SPRING_DATASOURCE_USERNAME: "postgres"
       SPRING_DATASOURCE_PASSWORD: "postgres"
@@ -34,7 +37,9 @@ services:
     image: every-apart-membership-service:0.0.1-SNAPSHOT
     ports:
       - "8082:8080"
+      - "5002:5002"
     environment:
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,address=*:5002,server=y,suspend=n"
       SPRING_DATASOURCE_URL: "jdbc:postgresql://membership-db:5432/everyapart"
       SPRING_DATASOURCE_USERNAME: "postgres"
       SPRING_DATASOURCE_PASSWORD: "postgres"
@@ -48,9 +53,9 @@ services:
     image: every-apart-subscription-service:0.0.1-SNAPSHOT
     ports:
       - "8083:8080"
-      - "5005:5005"
+      - "5003:5003"
     environment:
-      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,address=*:5005,server=y,suspend=n"
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,address=*:5003,server=y,suspend=n"
       SPRING_DATASOURCE_URL: "jdbc:postgresql://subscription-db:5432/everyapart"
       SPRING_DATASOURCE_USERNAME: "postgres"
       SPRING_DATASOURCE_PASSWORD: "postgres"
@@ -63,7 +68,40 @@ services:
       - membership-service
       - region-service
 
+  batch-service:
+    container_name: batch-service
+    image: every-apart-batch-service:0.0.1-SNAPSHOT
+    ports:
+      - "8084:8080"
+      - "5004:5004"
+    environment:
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,address=*:5004,server=y,suspend=n"
+      SERVICE_APARTMENTTRANSACTION_URL: "http://apartment-service:8080"
+      SERVICE_SUBSCRIPTION_URL: "http://subscription-service:8080"
+      KAFKA_CLUSTERS_BOOTSTRAPSERVERS: "everyapart-kafka:9092"
+      EVERYAPART_KAFKA_TOPIC_MAIL: "everyapart.mail.send"
+    depends_on:
+      - everyapart-kafka
+      - membership-service
+      - region-service
+      - subscription-service
 
+  mail-service:
+    container_name: mail-service
+    image: every-apart-mail-service:0.0.1-SNAPSHOT
+    ports:
+      - "8085:8080"
+      - "5005:5005"
+    environment:
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,address=*:5005,server=y,suspend=n"
+      KAFKA_CLUSTERS_BOOTSTRAPSERVERS: "everyapart-kafka:9092"
+      EVERYAPART_KAFKA_TOPIC_MAIL: "everyapart.mail.send"
+      SPRING_MAIL_HOST: "smtp.gmail.com"
+      SPRING_MAIL_PORT: "587"
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
+    depends_on:
+      - everyapart-kafka
 
   everyapart-zookeeper:
     container_name: everyapart-zookeeper
@@ -83,7 +121,6 @@ services:
       KAFKA_ADVERTISED_HOST_NAME: ${KAFKA_ADVERTISED_HOST_NAME}
       KAFKA_ZOOKEEPER_CONNECT: everyapart-zookeeper:2181
     volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
       - everyapart-kafka-volume:/kafka
     depends_on:
       - everyapart-zookeeper
@@ -156,12 +193,6 @@ volumes:
   everyapart-membership-db-volume:
     external: true
   everyapart-kafka-volume:
-    external: true
-  everyapart-axonserver-data:
-    external: true
-  everyapart-axonserver-events:
-    external: true
-  everyapart-axonserver-config:
     external: true
   everyapart-subscription-db-volume:
     external: true

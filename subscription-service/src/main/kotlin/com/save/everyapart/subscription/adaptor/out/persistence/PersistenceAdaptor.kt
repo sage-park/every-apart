@@ -1,6 +1,7 @@
 package com.save.everyapart.subscription.adaptor.out.persistence
 
 import com.save.everyapart.subscription.application.port.out.SubscriptionPort
+import com.save.everyapart.subscription.application.service.SubscriptionData
 import com.save.everyapart.subscription.domain.Subscription
 import org.springframework.stereotype.Repository
 
@@ -28,6 +29,22 @@ class PersistenceAdaptor(
             ))
 
         }
+
+    }
+
+    override fun findAll(): List<SubscriptionData> {
+
+        val all = subscriptionJpaRepository.findByActive(true)
+
+        return all.stream()
+            .map { SubscriptionData(
+                subscriptionId = it.subscriptionId,
+                membershipId = it.membershipId,
+                regionCode = it.regionCode,
+                active = it.active,
+                emailAddress = it.emailAddress
+            ) }
+            .toList()
 
     }
 }

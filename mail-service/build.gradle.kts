@@ -40,6 +40,13 @@ dependencies {
     //password encoder
     implementation("org.springframework.security:spring-security-crypto:5.7.1")
 
+    //mail
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+
+    //kafka
+    implementation("org.springframework.kafka:spring-kafka")
+
+
 }
 
 

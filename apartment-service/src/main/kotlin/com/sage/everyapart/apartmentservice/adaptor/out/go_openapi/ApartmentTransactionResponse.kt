@@ -15,7 +15,7 @@ data class Header(
 
 data class Body(
     @JsonProperty("items")
-    val items: Items,
+    val items: Items?,
 
     @JsonProperty("numOfRows")
     val numOfRows: Int,

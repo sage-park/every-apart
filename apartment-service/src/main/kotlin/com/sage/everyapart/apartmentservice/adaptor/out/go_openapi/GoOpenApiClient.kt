@@ -1,10 +1,12 @@
 package com.sage.everyapart.apartmentservice.adaptor.out.go_openapi
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.cfg.CoercionConfig
 import com.sage.everyapart.apartmentservice.domain.RegionCode
 import com.sage.everyapart.apartmentservice.exception.GoApiCallFailException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter
 import org.springframework.stereotype.Component
 import java.net.URI
 import java.time.YearMonth
@@ -25,14 +27,17 @@ class GoOpenApiClient(
 
         val url = URI("http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade?LAWD_CD=${regionCode.code.substring(0, 5)}&DEAL_YMD=${dealDate.format(DateTimeFormatter.ofPattern("yyyyMM"))}&serviceKey=$accessKey")
 
-        try{
+        try {
 
-            val responseEntity = restTemplate.getForEntity(
-                url,
-                ApartmentTransactionDataJsonResponse::class.java
-            )
+            val responseBody = restTemplate.getForEntity(url, String::class.java).body
 
-            return responseEntity.body ?: throw RuntimeException()
+            val objectMapper = ObjectMapper()
+            objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+
+            val responseEntity = objectMapper.readValue(responseBody, ApartmentTransactionDataJsonResponse::class.java)
+
+
+            return responseEntity ?: throw RuntimeException()
         } catch (e: Exception){
             e.printStackTrace()
 

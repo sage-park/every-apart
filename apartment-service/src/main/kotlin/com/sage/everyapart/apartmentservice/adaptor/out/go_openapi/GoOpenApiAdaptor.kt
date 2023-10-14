@@ -15,15 +15,22 @@ class GoOpenApiAdaptor(
     override fun searchTransactions(regionCode: RegionCode, dealDate: YearMonth): List<TransactionData> {
         val response = goOpenApiClient.getApartmentTransactionData(regionCode, dealDate)
 
-        return response.response.body.items.item.map { TransactionData(
-            it.지역코드,
-            it.법정동,
-            it.거래금액.trim().replace(",", "").toLong(),
-            LocalDate.of(it.년.toInt(), it.월.toInt(), it.일.toInt()),
-            it.아파트,
-            it.전용면적,
-            it.층.toInt()
-        ) }
+        val items = response.response.body.items
+
+        //items 가 null일떄
+        if (items == null) {
+            return emptyList()
+        } else {
+            return items.item.map { TransactionData(
+                it.지역코드,
+                it.법정동,
+                it.거래금액.trim().replace(",", "").toLong(),
+                LocalDate.of(it.년.toInt(), it.월.toInt(), it.일.toInt()),
+                it.아파트,
+                it.전용면적,
+                it.층.toInt()
+            ) }
+        }
 
     }
 }
