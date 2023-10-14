@@ -57,6 +57,7 @@ jib {
 
     container{
         jvmFlags = listOf("-Xms512m", "-Xmx512m")
+        creationTime = "USE_CURRENT_TIMESTAMP"
     }
 }
 
