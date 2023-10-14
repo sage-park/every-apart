@@ -3,7 +3,7 @@ package com.sage.everyapart.regionservice.adaptor.out.persistence
 import com.querydsl.core.types.Predicate
 import com.querydsl.core.types.dsl.StringPath
 import com.querydsl.jpa.impl.JPAQueryFactory
-import com.sage.everyapart.regionservice.application.port.out.SearchRegionPort
+import com.sage.everyapart.regionservice.application.port.out.RegionPort
 import com.sage.everyapart.regionservice.domain.City
 import com.sage.everyapart.regionservice.domain.RegionCode
 import org.springframework.data.domain.Pageable
@@ -13,7 +13,8 @@ import java.lang.RuntimeException
 @Repository
 class JpaRegionAdaptor(
     private val jpaQueryFactory:JPAQueryFactory,
-): SearchRegionPort {
+    private val regionJpaRepository: RegionJpaRepository
+): RegionPort {
     override fun search(keyword: String?, pageable: Pageable): List<City> {
         val region = QRegionJpaEntity.regionJpaEntity
 
@@ -65,6 +66,10 @@ class JpaRegionAdaptor(
         } else {
             throw RuntimeException("조회된 결과가 없습니다.")
         }
+    }
+
+    override fun exist(regionCode: RegionCode): Boolean {
+        return regionJpaRepository.existsById(regionCode.value)
     }
 
     private fun likeCityName(cityName: StringPath, keyword: String?): Predicate? {

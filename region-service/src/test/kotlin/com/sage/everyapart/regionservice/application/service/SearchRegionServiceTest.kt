@@ -1,22 +1,19 @@
 package com.sage.everyapart.regionservice.application.service
 
-import com.sage.everyapart.regionservice.application.port.out.SearchRegionPort
+import com.sage.everyapart.regionservice.application.port.out.RegionPort
 import com.sage.everyapart.regionservice.domain.City
 import com.sage.everyapart.regionservice.domain.RegionCode
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.mockito.kotlin.given
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.willReturn
 import org.springframework.data.domain.PageRequest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class SearchRegionServiceTest {
 
-    private val getRegionPort: SearchRegionPort = mock()
+    private val getRegionPort: RegionPort = mock()
     lateinit var searchRegionService:SearchRegionService
 
     @BeforeTest

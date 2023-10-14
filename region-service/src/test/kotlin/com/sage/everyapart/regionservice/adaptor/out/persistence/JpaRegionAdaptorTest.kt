@@ -1,11 +1,9 @@
 package com.sage.everyapart.regionservice.adaptor.out.persistence
 
 import com.querydsl.jpa.impl.JPAQueryFactory
-import com.sage.everyapart.regionservice.adaptor.out.persistence.config.JpaConfig
-import com.sage.everyapart.regionservice.application.port.out.SearchRegionPort
-import org.assertj.core.api.Assertions
+import com.sage.everyapart.regionservice.adaptor.out.persistence.config.JpaQuerydslConfig
+import com.sage.everyapart.regionservice.application.port.out.RegionPort
 import org.assertj.core.api.Assertions.*
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,10 +14,10 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 @DataJpaTest
-@Import(JpaConfig::class)
+@Import(JpaQuerydslConfig::class)
 class JpaRegionAdaptorTest {
 
-    lateinit var searchRegionPort: SearchRegionPort
+    lateinit var regionPort: RegionPort
     @Autowired
     lateinit var jpaQueryFactory: JPAQueryFactory
 
@@ -28,7 +26,7 @@ class JpaRegionAdaptorTest {
 
     @BeforeTest
     fun setup() {
-        searchRegionPort = JpaRegionAdaptor(jpaQueryFactory = jpaQueryFactory)
+        regionPort = JpaRegionAdaptor(jpaQueryFactory = jpaQueryFactory, regionJpaRepository = regionJpaRepository)
     }
 
     /**
@@ -85,7 +83,7 @@ class JpaRegionAdaptorTest {
         inner class SearchCity {
             @Test
             fun `keyword가 없을 경우 전체를 대상으로 검색한다`() {
-                val result = searchRegionPort.search(null, PageRequest.of(0, 1000))
+                val result = regionPort.search(null, PageRequest.of(0, 1000))
 
                 assertThat(result).hasSize(entities.size)
 
@@ -94,7 +92,7 @@ class JpaRegionAdaptorTest {
 
             @Test
             fun `size 가 1 일경우 1개만 검색한다`(){
-                val result = searchRegionPort.search(null, PageRequest.of(0, 1))
+                val result = regionPort.search(null, PageRequest.of(0, 1))
 
                 assertThat(result).hasSize(1)
             }
@@ -102,7 +100,7 @@ class JpaRegionAdaptorTest {
             @Test
             fun `keyword 가 있을 경우 앞자리부터 똑같은 경우만 검색한다`() {
 
-                val result = searchRegionPort.search("Other", PageRequest.of(0, 1000))
+                val result = regionPort.search("Other", PageRequest.of(0, 1000))
 
                 assertThat(result.size).isEqualTo(1)
                 assertThat(result.get(0).cityName).isEqualTo("Other City02")
@@ -112,7 +110,7 @@ class JpaRegionAdaptorTest {
             @Test
             fun `검색결과는 resionCode 순으로 출력한다`() {
 
-                val result = searchRegionPort.search(null, PageRequest.of(0, 3))
+                val result = regionPort.search(null, PageRequest.of(0, 3))
 
                 assertThat(result.get(0).regionCode.value).isEqualTo(entities[2].regionCode)
                 assertThat(result.get(1).regionCode.value).isEqualTo(entities[0].regionCode)
@@ -127,7 +125,7 @@ class JpaRegionAdaptorTest {
 
             @Test
             fun `total 가 3일경우 3을 리턴한다`(){
-                val result = searchRegionPort.getTotal(null, PageRequest.of(0, 3))
+                val result = regionPort.getTotal(null, PageRequest.of(0, 3))
                 assertThat(result).isEqualTo(3)
             }
 
